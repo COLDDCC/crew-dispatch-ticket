@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>派工联系单</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anybody:wght@500;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500&family=Noto+Sans+SC:wght@400;500;700&family=DotGothic16&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --field:#EAF3FC;
+    --paper:#FFFFFF;
+    --ink:#12324E;
+    --ink-2:#5D7B96;
+    --rule:#1768C9;
+    --lead:#D8472E;
+    --line:#CBDCEC;
+    --display:'Anybody','Noto Sans SC',system-ui,sans-serif;
+    --body:'IBM Plex Sans','Noto Sans SC',system-ui,sans-serif;
+    --mono:'IBM Plex Mono','Noto Sans SC',ui-monospace,monospace;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--field);
+    color:var(--ink);
+    font:400 15px/1.6 var(--body);
+    -webkit-font-smoothing:antialiased;
+    background-image:
+      linear-gradient(to right,rgba(23,104,201,.08) .6px,transparent .6px),
+      linear-gradient(to bottom,rgba(23,104,201,.08) .6px,transparent .6px);
+    background-size:5mm 5mm;
+  }
+  .wrap{
+    max-width:1080px;margin:0 auto;padding:36px 20px 72px;
+    display:grid;grid-template-columns:minmax(0,1fr) 520px;gap:44px;align-items:start;
+  }
+  header{grid-column:1/-1;margin-bottom:4px;display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap}
+  h1{font:700 24px/1.1 var(--display);letter-spacing:-.01em;margin:0 0 8px}
+  header p{margin:0;color:var(--ink-2);font-size:13.5px;max-width:52ch}
+
+  .panel{background:var(--paper);border:1px solid var(--line);padding:20px}
+  .panel + .panel{margin-top:18px}
+  .panel h2{font:700 11px/1 var(--mono);letter-spacing:.1em;color:var(--ink);margin:0 0 16px;padding-bottom:12px;border-bottom:1.5px solid var(--ink);display:flex;justify-content:space-between;align-items:center}
+  .panel h2 span.sub{font-weight:500;color:var(--ink-2);letter-spacing:.02em}
+
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+  .f{display:flex;flex-direction:column;gap:6px;min-width:0}
+  .f>label{font:500 10px/1 var(--mono);letter-spacing:.1em;color:var(--ink-2)}
+  input,select{
+    font-family:var(--body);font-size:15px;color:var(--ink);
+    background:#fff;border:1px solid var(--line);border-radius:0;
+    padding:9px 11px;width:100%;
+  }
+  input[type=number],.i-pay,#orderNo{font-family:var(--mono)}
+  input:focus,select:focus{outline:2px solid var(--rule);outline-offset:1px;border-color:transparent}
+  input:disabled{background:var(--field);color:var(--ink-2)}
+  textarea{
+    font-family:var(--mono);font-size:13px;color:var(--ink);
+    background:#fff;border:1px solid var(--line);border-radius:0;
+    padding:9px 11px;width:100%;resize:vertical;min-height:64px;
+  }
+  textarea:focus{outline:2px solid var(--rule);outline-offset:1px;border-color:transparent}
+  .hint{font-size:11.5px;color:var(--ink-2);margin-top:-2px}
+
+  .rows{display:flex;flex-direction:column;gap:10px}
+  .row{display:grid;grid-template-columns:minmax(0,1fr) 32px;gap:8px;align-items:center}
+  .row .rm{
+    background:#fff;border:1px solid var(--line);color:var(--ink-2);
+    border-radius:0;height:38px;cursor:pointer;font-size:16px;padding:0;
+  }
+  .row .rm:hover{color:var(--lead);border-color:var(--lead)}
+
+  .btn{
+    font-family:var(--mono);font-size:13px;font-weight:500;letter-spacing:.05em;cursor:pointer;
+    border-radius:0;padding:10px 16px;border:1px solid var(--line);
+    background:#fff;color:var(--ink-2);
+  }
+  .btn:hover{border-color:var(--rule);color:var(--rule)}
+  .btn-solid{background:var(--rule);border-color:var(--rule);color:#fff;text-transform:uppercase}
+  .btn-solid:hover{background:var(--ink);border-color:var(--ink);color:#fff}
+  .btn-sm{padding:6px 10px;font-size:11px}
+  .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+
+  .chip{
+    font-family:var(--mono);font-size:12px;font-weight:500;letter-spacing:.03em;cursor:pointer;
+    border-radius:0;padding:8px 12px;border:1px solid var(--line);background:#fff;color:var(--ink-2);
+  }
+  .chip:hover{border-color:var(--rule);color:var(--rule)}
+  .chip[aria-pressed="true"]{background:var(--rule);border-color:var(--rule);color:#fff}
+  .chips{display:flex;gap:10px;flex-wrap:wrap}
+
+  .seg{display:flex;border:1px solid var(--line)}
+  .seg button{
+    flex:1;font:500 11px var(--mono);letter-spacing:0;padding:9px 2px;white-space:nowrap;
+    background:#fff;border:0;border-right:1px solid var(--line);cursor:pointer;color:var(--ink-2);
+  }
+  .seg button:last-child{border-right:0}
+  .seg button[aria-pressed="true"]{background:var(--rule);color:#fff}
+
+  .assigned-row{display:grid;grid-template-columns:minmax(0,1fr) 120px;gap:8px;align-items:center}
+  .assigned-row .name{font-family:var(--mono);font-size:13.5px;color:var(--ink)}
+
+  .preview{position:sticky;top:28px}
+  .preview canvas{width:100%;height:auto;display:block}
+  .note{color:var(--ink-2);font-size:12.5px;margin-top:12px;min-height:1.6em}
+
+  @media (max-width:920px){
+    .wrap{grid-template-columns:1fr;gap:28px}
+    .preview{position:static}
+  }
+  @media (max-width:480px){
+    .grid3{grid-template-columns:1fr}
+  }
+  @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div>
+      <h1>派工联系单</h1>
+      <p>填一次订单信息，选好去干活的师傅，一键出图发群里，不怕被聊天记录刷走。</p>
+    </div>
+    <button class="btn" id="resetOrder">清空本单</button>
+  </header>
+
+  <div>
+    <div class="panel">
+      <h2>客户信息</h2>
+      <div class="f" style="margin-bottom:14px">
+        <label for="custAddress">客户地址</label>
+        <input id="custAddress" type="text" placeholder="上门地址">
+      </div>
+      <div class="grid3">
+        <div class="f"><label for="custPhone">联系电话</label><input id="custPhone" type="tel" placeholder="手机号"></div>
+        <div class="f"><label for="custWechat">微信号</label><input id="custWechat" type="text" placeholder="微信号"></div>
+        <div class="f"><label for="orderDate">接单日期</label><input id="orderDate" type="date"></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>订单信息</h2>
+      <div class="grid3">
+        <div class="f"><label for="orderTotal">订单总价（元）</label><input id="orderTotal" type="number" step="0.01" min="0" value="0"></div>
+        <div class="f"><label for="neededCount">需要人数</label><input id="neededCount" type="number" step="1" min="0" value="1"></div>
+        <div class="f"><label for="orderNo">单号</label><input id="orderNo" type="text"></div>
+      </div>
+      <div class="f" style="margin-top:14px">
+        <label for="remarks">备注</label>
+        <textarea id="remarks" rows="2" placeholder="如：顾客有洁癖注意干净整洁；家里有猫狗记得关门；停车不方便，提前联系；等"></textarea>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>师傅名单 <span class="sub">团队固定人员，改一次长期用</span></h2>
+      <div class="rows" id="rosterRows"></div>
+      <div class="actions">
+        <button class="btn" id="addRoster">+ 添加师傅</button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>本次派工</h2>
+      <p class="hint" id="assignHint" style="margin-bottom:10px">点名字选择这次去干活的师傅</p>
+      <div class="chips" id="assignChips"></div>
+
+      <div class="grid2" style="margin-top:18px;align-items:end">
+        <div class="f">
+          <label>分配方式</label>
+          <div class="seg" id="splitSeg" role="group">
+            <button type="button" data-v="equal" aria-pressed="true">均分</button>
+            <button type="button" data-v="custom" aria-pressed="false">自定义金额</button>
+          </div>
+        </div>
+        <div></div>
+      </div>
+
+      <div class="rows" id="assignedList" style="margin-top:16px"></div>
+    </div>
+  </div>
+
+  <div class="preview">
+    <canvas id="cv"></canvas>
+    <div class="actions">
+      <button class="btn btn-solid" id="dl">下载派工图</button>
+      <button class="btn" id="cp">复制图片</button>
+    </div>
+    <p class="note" id="note"></p>
+  </div>
+
+</div>
+
+<script>
+(function(){
+  const $ = id => document.getElementById(id);
+  const cv = $('cv'), ctx = cv.getContext('2d');
+  const noteEl = $('note');
+  const rosterRowsEl = $('rosterRows');
+  const assignChipsEl = $('assignChips');
+  const assignedListEl = $('assignedList');
+
+  const MONO = '"IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, "Noto Sans SC", "PingFang SC", monospace';
+  const DIGIT = '"DotGothic16", "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace';
+  const BODY = '"IBM Plex Sans", "Noto Sans SC", "PingFang SC", sans-serif';
+
+  /* ---------- 分段按钮 ---------- */
+  function segValue(segId){
+    const btn = document.querySelector('#' + segId + ' button[aria-pressed="true"]');
+    return btn ? btn.dataset.v : null;
+  }
+  function setSeg(segId, v){
+    document.querySelectorAll('#' + segId + ' button').forEach(b => {
+      b.setAttribute('aria-pressed', b.dataset.v === v ? 'true' : 'false');
+    });
+  }
+  $('splitSeg').querySelectorAll('button').forEach(b => {
+    b.addEventListener('click', () => {
+      setSeg('splitSeg', b.dataset.v);
+      if (b.dataset.v === 'equal') recomputeEqual();
+      renderAssignedList();
+      render();
+    });
+  });
+
+  /* ---------- 师傅名单（团队固定人员，存本地） ---------- */
+  const ROSTER_KEY = 'shifu:roster';
+  let roster = [];      // [{id, name}]
+  let nextId = 1;
+
+  function loadRoster(){
+    try{
+      const raw = localStorage.getItem(ROSTER_KEY);
+      if (raw){
+        const arr = JSON.parse(raw);
+        if (Array.isArray(arr) && arr.length){
+          roster = arr.map(name => ({ id: nextId++, name }));
+          return;
+        }
+      }
+    }catch(e){}
+    roster = Array.from({length:5}, () => ({ id: nextId++, name: '' }));
+  }
+  function saveRoster(){
+    try{ localStorage.setItem(ROSTER_KEY, JSON.stringify(roster.map(r => r.name))); }catch(e){}
+  }
+
+  function renderRoster(){
+    rosterRowsEl.innerHTML = '';
+    roster.forEach(r => {
+      const d = document.createElement('div');
+      d.className = 'row';
+      d.innerHTML = '<div class="f"><input type="text" class="i-roster-name" placeholder="师傅姓名"></div><button class="rm" title="删除">×</button>';
+      const inp = d.querySelector('.i-roster-name');
+      inp.value = r.name;
+      inp.addEventListener('input', () => {
+        r.name = inp.value;
+        saveRoster();
+        renderAssignChips();
+        renderAssignedList();
+        render();
+      });
+      d.querySelector('.rm').addEventListener('click', () => {
+        roster = roster.filter(x => x.id !== r.id);
+        assignedIds.delete(r.id);
+        payMap.delete(r.id);
+        saveRoster();
+        renderRoster();
+        renderAssignChips();
+        renderAssignedList();
+        render();
+      });
+      rosterRowsEl.appendChild(d);
+    });
+  }
+
+  $('addRoster').addEventListener('click', () => {
+    roster.push({ id: nextId++, name: '' });
+    saveRoster();
+    renderRoster();
+    renderAssignChips();
+  });
+
+  /* ---------- 本次派工：选人 + 分配金额 ---------- */
+  let assignedIds = new Set();
+  const payMap = new Map(); // id -> number
+
+  function equalSplit(total, ids){
+    const n = ids.length;
+    const map = new Map();
+    if (!n) return map;
+    const totalCents = Math.round((+total || 0) * 100);
+    const base = Math.floor(totalCents / n);
+    let remainder = totalCents - base * n;
+    ids.forEach(id => {
+      let cents = base;
+      if (remainder > 0){ cents += 1; remainder--; }
+      map.set(id, cents / 100);
+    });
+    return map;
+  }
+
+  function recomputeEqual(){
+    const ids = roster.filter(r => assignedIds.has(r.id)).map(r => r.id);
+    const total = +$('orderTotal').value || 0;
+    const split = equalSplit(total, ids);
+    ids.forEach(id => payMap.set(id, split.get(id)));
+  }
+
+  function renderAssignChips(){
+    assignChipsEl.innerHTML = '';
+    const named = roster.filter(r => r.name.trim());
+    if (!named.length){
+      const p = document.createElement('span');
+      p.className = 'hint';
+      p.textContent = '请先在上方【师傅名单】里添加师傅姓名';
+      assignChipsEl.appendChild(p);
+      return;
+    }
+    named.forEach(r => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'chip';
+      b.setAttribute('aria-pressed', assignedIds.has(r.id) ? 'true' : 'false');
+      b.textContent = r.name.trim();
+      b.addEventListener('click', () => {
+        if (assignedIds.has(r.id)) assignedIds.delete(r.id);
+        else assignedIds.add(r.id);
+        if (segValue('splitSeg') === 'equal') recomputeEqual();
+        else if (!payMap.has(r.id) && assignedIds.has(r.id)){
+          // 自定义模式下新选的人，先给个均分参考值
+          const ids = roster.filter(x => assignedIds.has(x.id)).map(x => x.id);
+          const split = equalSplit(+$('orderTotal').value || 0, ids);
+          ids.forEach(id => { if (!payMap.has(id)) payMap.set(id, split.get(id)); });
+        }
+        renderAssignChips();
+        renderAssignedList();
+        render();
+      });
+      assignChipsEl.appendChild(b);
+    });
+  }
+
+  function renderAssignedList(){
+    assignedListEl.innerHTML = '';
+    const mode = segValue('splitSeg') || 'equal';
+    const ids = roster.filter(r => assignedIds.has(r.id));
+    const needed = +$('neededCount').value || 0;
+    $('assignHint').textContent = needed
+      ? '已选 ' + ids.length + ' 人 / 需要 ' + needed + ' 人'
+      : '点名字选择这次去干活的师傅';
+    ids.forEach(r => {
+      const d = document.createElement('div');
+      d.className = 'assigned-row';
+      const pay = payMap.get(r.id) || 0;
+      d.innerHTML = '<span class="name">' + escapeHtml(r.name) + '</span>' +
+        '<input type="number" step="0.01" min="0" class="i-pay">';
+      const inp = d.querySelector('.i-pay');
+      inp.value = pay;
+      inp.disabled = (mode === 'equal');
+      inp.addEventListener('input', () => {
+        payMap.set(r.id, +inp.value || 0);
+        render();
+      });
+      assignedListEl.appendChild(d);
+    });
+  }
+
+  function escapeHtml(s){
+    return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+
+  /* ---------- 清空本单（保留师傅名单） ---------- */
+  $('resetOrder').addEventListener('click', () => {
+    if (!confirm('清空本单的客户信息、订单和派工分配？师傅名单会保留。')) return;
+    $('custAddress').value = '';
+    $('custPhone').value = '';
+    $('custWechat').value = '';
+    $('remarks').value = '';
+    $('orderTotal').value = 0;
+    $('neededCount').value = 1;
+    setToday();
+    setOrderNo();
+    assignedIds = new Set();
+    payMap.clear();
+    setSeg('splitSeg', 'equal');
+    renderAssignChips();
+    renderAssignedList();
+    render();
+    noteEl.textContent = '已清空本单，师傅名单保留。';
+  });
+
+  /* ---------- 画布绘制 ---------- */
+  const W = 560, PAD = 40, PW = W - PAD*2, TOP = 26, TOOTH = 11, TH = 7;
+  const fmtY = n => '¥' + (Math.round((+n || 0) * 100) / 100).toFixed(2);
+
+  function wrapText(measureCtx, text, maxWidth){
+    if (!text) return [];
+    const lines = [];
+    let line = '';
+    for (const ch of String(text)){
+      const test = line + ch;
+      if (measureCtx.measureText(test).width > maxWidth && line){
+        lines.push(line);
+        line = ch;
+      } else {
+        line = test;
+      }
+    }
+    if (line) lines.push(line);
+    return lines;
+  }
+
+  function buildLines(){
+    const L = [];
+    const IW = W - PAD*2 - 44;
+    L.push({t:'title', v:'派工联系单'});
+    L.push({t:'sub', v:'DISPATCH ORDER'});
+    L.push({t:'gap', h:10});
+    L.push({t:'rule'});
+
+    const no = $('orderNo').value.trim();
+    if (no) L.push({t:'kv', a:'单号', b:no});
+    L.push({t:'kv', a:'接单日期', b:$('orderDate').value || '-'});
+
+    const addr = $('custAddress').value.trim();
+    L.push({t:'label', v:'客户地址'});
+    ctx.font = '400 13px ' + MONO;
+    const addrLines = wrapText(ctx, addr || '-', IW);
+    addrLines.forEach((line, i) => L.push({t:'wraptext', v:line, h:19}));
+
+    const phone = $('custPhone').value.trim();
+    const wechat = $('custWechat').value.trim();
+    if (phone) L.push({t:'kv', a:'联系电话', b:phone});
+    if (wechat) L.push({t:'kv', a:'微信号', b:wechat});
+    L.push({t:'rule'});
+
+    L.push({t:'kv', a:'订单总价', b:fmtY($('orderTotal').value)});
+    L.push({t:'kv', a:'需要人数', b:(+$('neededCount').value || 0) + ' 人'});
+    L.push({t:'rule'});
+
+    const ids = roster.filter(r => assignedIds.has(r.id));
+    L.push({t:'label', v:'派工师傅（' + ids.length + ' 人）'});
+    if (!ids.length){
+      L.push({t:'center', v:'还没有选人'});
+    } else {
+      ids.forEach(r => {
+        L.push({t:'workerkv', a:r.name.trim() || '(未命名)', b:fmtY(payMap.get(r.id) || 0)});
+      });
+    }
+    L.push({t:'rule'});
+
+    const sum = ids.reduce((s, r) => s + (payMap.get(r.id) || 0), 0);
+    L.push({t:'total', a:'合计发放', b:fmtY(sum)});
+    const total = +$('orderTotal').value || 0;
+    if (Math.abs(sum - total) > 0.004){
+      L.push({t:'kvs', a:'（订单总价 ' + fmtY(total) + '，相差 ' + fmtY(Math.abs(sum - total)) + '）', b:''});
+    }
+
+    const remarks = $('remarks').value.trim();
+    if (remarks){
+      L.push({t:'rule'});
+      L.push({t:'label', v:'备注'});
+      ctx.font = '400 13px ' + MONO;
+      const remarkLines = wrapText(ctx, remarks, IW);
+      remarkLines.forEach(line => L.push({t:'wraptext', v:line, h:19}));
+    }
+
+    L.push({t:'rule'});
+    L.push({t:'gap', h:4});
+    L.push({t:'center', v:'请核对信息后再联系师傅出发'});
+    return L;
+  }
+
+  const H = {title:34, sub:20, gap:0, rule:16, kv:23, kvs:19, label:22, workerkv:23, total:38, center:22, wraptext:19};
+
+  function drawTicket(scale){
+    const L = buildLines();
+    let body = 0;
+    L.forEach(l => body += (l.h != null ? l.h : H[l.t]));
+    const paperH = 34 + body + 34;
+    const H_ = TOP + paperH + TOP;
+
+    cv.width = W * scale;
+    cv.height = H_ * scale;
+    cv.style.aspectRatio = W + '/' + H_;
+    ctx.setTransform(scale, 0, 0, scale, 0, 0);
+
+    ctx.fillStyle = '#EAF3FC';
+    ctx.fillRect(0, 0, W, H_);
+
+    const x0 = PAD, x1 = W - PAD, y0 = TOP, y1 = TOP + paperH;
+    ctx.beginPath();
+    ctx.moveTo(x0, y0);
+    for (let x = x0; x < x1; x += TOOTH){
+      ctx.lineTo(Math.min(x + TOOTH/2, x1), y0 - TH);
+      ctx.lineTo(Math.min(x + TOOTH, x1), y0);
+    }
+    ctx.lineTo(x1, y1);
+    for (let x = x1; x > x0; x -= TOOTH){
+      ctx.lineTo(Math.max(x - TOOTH/2, x0), y1 + TH);
+      ctx.lineTo(Math.max(x - TOOTH, x0), y1);
+    }
+    ctx.closePath();
+    ctx.save();
+    ctx.shadowColor = 'rgba(18,50,78,.18)';
+    ctx.shadowBlur = 16;
+    ctx.shadowOffsetY = 5;
+    ctx.fillStyle = '#FFFFFF';
+    ctx.fill();
+    ctx.restore();
+
+    ctx.save();
+    ctx.clip();
+    ctx.fillStyle = '#1768C9';
+    ctx.fillRect(x0, y0, x1 - x0, 6);
+    ctx.restore();
+
+    const IL = x0 + 22, IR = x1 - 22, IW = IR - IL;
+    let y = y0 + 34;
+    const ink = '#12324E', fade = '#5D7B96', acc = '#D8472E', brand = '#1768C9';
+
+    const right = (txt, yy) => { ctx.textAlign = 'right'; ctx.fillText(txt, IR, yy); ctx.textAlign = 'left'; };
+    const dash = yy => {
+      ctx.strokeStyle = '#CBDCEC'; ctx.lineWidth = 1;
+      ctx.setLineDash([3, 3]);
+      ctx.beginPath(); ctx.moveTo(IL, yy + .5); ctx.lineTo(IR, yy + .5); ctx.stroke();
+      ctx.setLineDash([]);
+    };
+
+    ctx.textBaseline = 'alphabetic';
+
+    L.forEach(l => {
+      if (l.t === 'gap'){ y += l.h; return; }
+      if (l.t === 'title'){
+        ctx.fillStyle = brand; ctx.font = '700 19px ' + MONO;
+        ctx.textAlign = 'center'; ctx.fillText(l.v, (IL+IR)/2, y + 20); ctx.textAlign = 'left';
+      } else if (l.t === 'sub'){
+        ctx.fillStyle = fade; ctx.font = '400 11px ' + DIGIT;
+        ctx.textAlign = 'center'; ctx.fillText(l.v, (IL+IR)/2, y + 12); ctx.textAlign = 'left';
+      } else if (l.t === 'rule'){
+        dash(y + 8);
+      } else if (l.t === 'label'){
+        ctx.font = '500 10px ' + MONO; ctx.fillStyle = fade;
+        ctx.fillText(l.v, IL, y + 15);
+      } else if (l.t === 'wraptext'){
+        ctx.font = '400 13px ' + MONO; ctx.fillStyle = ink;
+        ctx.fillText(l.v, IL, y + 14);
+      } else if (l.t === 'kv'){
+        ctx.font = '400 13px ' + MONO; ctx.fillStyle = fade;
+        ctx.fillText(l.a, IL, y + 15);
+        ctx.fillStyle = ink; right(l.b, y + 15);
+      } else if (l.t === 'workerkv'){
+        ctx.font = '500 14px ' + MONO; ctx.fillStyle = ink;
+        ctx.fillText(l.a, IL, y + 16);
+        ctx.font = '500 14px ' + DIGIT; ctx.fillStyle = ink;
+        right(l.b, y + 16);
+      } else if (l.t === 'kvs'){
+        ctx.font = '400 11px ' + MONO; ctx.fillStyle = fade;
+        ctx.textAlign = 'right'; ctx.fillText(l.a, IR, y + 13); ctx.textAlign = 'left';
+      } else if (l.t === 'total'){
+        ctx.font = '700 15px ' + MONO; ctx.fillStyle = ink;
+        ctx.fillText(l.a, IL, y + 22);
+        ctx.font = '700 24px ' + DIGIT; ctx.fillStyle = acc;
+        right(l.b, y + 24);
+      } else if (l.t === 'center'){
+        ctx.font = '400 11.5px ' + MONO; ctx.fillStyle = fade;
+        ctx.textAlign = 'center'; ctx.fillText(l.v, (IL+IR)/2, y + 14); ctx.textAlign = 'left';
+      }
+      y += (l.h != null ? l.h : H[l.t]);
+    });
+  }
+
+  function render(){
+    const dpr = Math.min(3, window.devicePixelRatio || 1);
+    drawTicket(Math.max(2, dpr));
+  }
+
+  /* ---------- 导出 ---------- */
+  function filename(){
+    const a = $('custAddress').value.trim() || '派工单';
+    const n = $('orderNo').value.trim();
+    return [a.slice(0,10), n, $('orderDate').value].filter(Boolean).join('-') + '.png';
+  }
+
+  $('dl').addEventListener('click', () => {
+    drawTicket(3);
+    const a = document.createElement('a');
+    a.download = filename();
+    a.href = cv.toDataURL('image/png');
+    a.click();
+    render();
+    noteEl.textContent = '已下载。';
+  });
+
+  $('cp').addEventListener('click', async () => {
+    drawTicket(3);
+    try{
+      const blob = await new Promise(r => cv.toBlob(r, 'image/png'));
+      await navigator.clipboard.write([new ClipboardItem({'image/png': blob})]);
+      noteEl.textContent = '已复制，可以直接粘贴到微信。';
+    }catch(e){
+      noteEl.textContent = '这个浏览器不支持复制图片，用「下载派工图」吧。';
+    }
+    render();
+  });
+
+  /* ---------- 默认值 ---------- */
+  function setToday(){
+    const t = new Date();
+    $('orderDate').value = t.getFullYear() + '-' + String(t.getMonth()+1).padStart(2,'0') + '-' + String(t.getDate()).padStart(2,'0');
+  }
+  function setOrderNo(){
+    const t = new Date();
+    $('orderNo').value = 'PG' + String(t.getMonth()+1).padStart(2,'0') + String(t.getDate()).padStart(2,'0')
+                    + '-' + String(Math.floor(Math.random()*900+100));
+  }
+
+  /* ---------- 启动 ---------- */
+  document.addEventListener('input', (e) => {
+    if (e.target.id === 'orderTotal' && segValue('splitSeg') === 'equal') recomputeEqual();
+    if (e.target.id === 'orderTotal' || e.target.id === 'neededCount') renderAssignedList();
+    render();
+  });
+  document.addEventListener('change', render);
+
+  loadRoster();
+  saveRoster();
+  renderRoster();
+  renderAssignChips();
+  renderAssignedList();
+  setToday();
+  setOrderNo();
+  render();
+})();
+</script>
+</body>
+</html>
