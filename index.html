@@ -586,14 +586,33 @@
     return [a.slice(0,10), n, $('orderDate').value].filter(Boolean).join('-') + '.png';
   }
 
-  $('dl').addEventListener('click', () => {
-    drawTicket(3);
+  async function saveFile(fname, blob){
+    if (typeof window !== 'undefined' && window.claude && window.claude.use){
+      try{
+        const downloads = await window.claude.use('downloads');
+        if (downloads){
+          await downloads.save({ filename: fname, data: blob });
+          return 'saved';
+        }
+      }catch(e){
+        if (e && e.code === 'declined') return 'declined';
+        // 其它错误（如不在 Artifact 环境里）落回普通下载
+      }
+    }
     const a = document.createElement('a');
-    a.download = filename();
-    a.href = cv.toDataURL('image/png');
+    a.download = fname;
+    a.href = URL.createObjectURL(blob);
     a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    return 'saved';
+  }
+
+  $('dl').addEventListener('click', async () => {
+    drawTicket(3);
+    const blob = await new Promise(r => cv.toBlob(r, 'image/png'));
+    const status = await saveFile(filename(), blob);
+    noteEl.textContent = status === 'declined' ? '已取消下载。' : '已下载。';
     render();
-    noteEl.textContent = '已下载。';
   });
 
   $('cp').addEventListener('click', async () => {
